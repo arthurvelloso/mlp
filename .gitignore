@@ -1,0 +1,24 @@
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
+# Cache do Python e das ferramentas
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Dados e saídas pesadas (não versionar)
+data/
+*.npz
+*.csv
+reports/figures/*.png
+
+# Segredos: NUNCA versionar
+.env
+*.key
+
+# Específicos do sistema
+.DS_Store

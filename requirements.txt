@@ -1,0 +1,10 @@
+# Dependências com versões fixas (pinned).
+# Fixar a versão garante que o projeto roda igual hoje e daqui a seis meses.
+# Para atualizar: mude o número, rode os testes e só então faça o commit.
+
+numpy==2.1.3
+
+# --- ferramentas de desenvolvimento ---
+# (poderiam ir num requirements-dev.txt separado; aqui ficam juntas para simplificar)
+pytest==8.3.4
+ruff==0.8.4

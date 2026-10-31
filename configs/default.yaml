@@ -1,0 +1,15 @@
+# Hiperparâmetros e caminhos do projeto.
+# Manter isso num arquivo (e não espalhado pelo código) deixa os
+# experimentos reprodutíveis: muda aqui, commita, e dá para saber
+# exatamente qual configuração gerou cada resultado.
+
+seed: 0
+
+data:
+  val_fraction: 0.2
+
+# Exemplo de bloco de treino para um projeto real:
+# train:
+#   lr: 0.01
+#   batch_size: 128
+#   epochs: 10

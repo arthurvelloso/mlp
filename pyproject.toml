@@ -1,0 +1,23 @@
+# Configuração central do projeto: metadados, ruff e pytest num só lugar.
+
+[project]
+name = "template-ml"
+version = "0.1.0"
+description = "Template de repositório para projetos de ML."
+requires-python = ">=3.11"
+
+[tool.ruff]
+# Comprimento de linha e versão-alvo do Python.
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Conjunto de regras: erros do pyflakes (F), estilo pycodestyle (E),
+# imports ordenados (I), upgrades de sintaxe (UP) e bugs comuns (B).
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+# Onde ficam os testes e como reconhecê-los.
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
