@@ -1,7 +1,7 @@
 # Atalhos para as tarefas do dia a dia.
 # Rode `make` ou `make help` para ver os comandos.
 
-.PHONY: help install test lint format reproduce clean
+.PHONY: help install test lint format gradcheck train reproduce clean
 
 help:  ## Lista os comandos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -21,8 +21,15 @@ format:  ## Formata o código (altera arquivos)
 	ruff format .
 	ruff check --fix .
 
-reproduce:  ## Reproduz o resultado principal do projeto
-	python -m src.main
+gradcheck:  ## Confere os gradientes por diferenças finitas
+	python -m src.gradcheck
+
+train:  ## Treina a MLP no MNIST
+	python -m src.train
+
+reproduce:  ## Reproduz o resultado principal (gradient check + treino)
+	$(MAKE) gradcheck
+	$(MAKE) train
 
 clean:  ## Remove arquivos temporários
 	rm -rf .pytest_cache .ruff_cache __pycache__ src/__pycache__ tests/__pycache__
