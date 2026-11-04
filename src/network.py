@@ -52,16 +52,28 @@ class MLP:
 
         self.loss_fn = SoftmaxCrossEntropy()
 
+    def logits(self, inputs: np.ndarray) -> np.ndarray:
+        """Passa o lote pelas camadas e retorna os logits (sem a loss).
+
+        Usado para prever e medir acurácia. Também guarda, em cada camada, o
+        que o backward precisa, então pode ser combinado com ``forward``.
+        """
+        activations = np.asarray(inputs, dtype=np.float64)
+        for layer in self.layers:
+            activations = layer.forward(activations)
+        return activations
+
     def forward(self, inputs: np.ndarray, targets: np.ndarray) -> float:
         """Passa o lote pela rede e retorna a loss média.
 
         Cada camada guarda internamente o que seu backward precisa, então não
         é necessário acumular ativações aqui.
         """
-        activations = np.asarray(inputs, dtype=np.float64)
-        for layer in self.layers:
-            activations = layer.forward(activations)
-        return self.loss_fn.forward(activations, targets)
+        return self.loss_fn.forward(self.logits(inputs), targets)
+
+    def predict(self, inputs: np.ndarray) -> np.ndarray:
+        """Retorna a classe prevista (argmax dos logits) para cada exemplo."""
+        return np.argmax(self.logits(inputs), axis=1)
 
     def backward(self) -> None:
         """Backprop da rede inteira, preenchendo os gradientes de cada Linear.

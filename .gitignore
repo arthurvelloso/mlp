@@ -14,7 +14,7 @@ __pycache__/
 data/
 *.npz
 *.csv
-reports/figures/*.png
+reports/
 
 # Segredos: NUNCA versionar
 .env

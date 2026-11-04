@@ -5,22 +5,28 @@ sem PyTorch nem TensorFlow. O objetivo é entender o que acontece por baixo dos
 frameworks: o forward, o backprop e o treino, com os gradientes conferidos por
 diferenças finitas.
 
-> **Status:** em construção. As camadas (`Linear`, `ReLU`, `SoftmaxCrossEntropy`)
-> já estão implementadas e validadas. O treino no MNIST é o próximo passo.
+> **Status:** em construção. Camadas, backprop, gradient check e treino no MNIST
+> estão prontos. Otimizadores adicionais e a avaliação no teste vêm depois.
 
 ## Resultado
 
-O número que importa fica aqui, logo no topo, assim que o treino estiver pronto.
+> MLP 784-256-128-10 em NumPy com SGD atinge **97,94% de acurácia na validação**
+> (10 mil exemplos, seed 0), com gradientes conferidos por diferenças finitas
+> (erro relativo máximo ~7e-10).
 
-> _Em breve:_ MLP em NumPy atingindo X% de acurácia no MNIST (validação), com
-> gradientes conferidos por diferenças finitas (erro relativo < 1e-7).
+![Curva de acurácia](reports/figures/accuracy.png)
+![Curva de loss](reports/figures/loss.png)
+
+As figuras são geradas por `make plots`. Elas ficam fora do git; rode
+`make reproduce` para recriá-las.
 
 | Etapa | Status |
 | --- | --- |
 | Camadas `Linear`, `ReLU`, `SoftmaxCrossEntropy` | ✅ implementadas |
-| Gradient check (diferenças finitas) | ✅ validado (erro ~1e-10) |
-| Treino no MNIST | ⬜ a fazer |
-| Curvas de loss e acurácia | ⬜ a fazer |
+| Gradient check (diferenças finitas) | ✅ validado, também como teste no CI |
+| Treino no MNIST (mini-batches, CSV, early stopping, checkpoint) | ✅ |
+| Curvas de loss e acurácia por script | ✅ |
+| Avaliação no teste oficial | ⬜ dia 6 |
 
 ## O que já tem
 
@@ -86,12 +92,14 @@ Comandos do `Makefile`:
 | `make test` | roda os testes | ✅ |
 | `make lint` | verifica o estilo (ruff) | ✅ |
 | `make format` | formata o código (ruff) | ✅ |
-| `make gradcheck` | confere os gradientes por diferenças finitas | ⬜ em breve |
-| `make train` | treina a MLP no MNIST | ⬜ em breve |
-| `make reproduce` | gradient check + treino | ⬜ em breve |
+| `make gradcheck` | confere os gradientes por diferenças finitas | ✅ |
+| `make train` | treina no MNIST e grava `reports/metrics.csv` | ✅ |
+| `make plots` | gera as curvas a partir do CSV | ✅ |
+| `make reproduce` | gradient check + treino + curvas | ✅ |
 
-Os alvos `gradcheck`, `train` e `reproduce` dependem de scripts ainda não
-escritos (`src/gradcheck.py`, `src/train.py`).
+O primeiro `make train` baixa o MNIST para `data/mnist.npz` (uma vez só).
+Os hiperparâmetros ficam em `configs/default.yaml`. Com a mesma config e a mesma
+seed, o CSV de métricas sai idêntico a cada execução.
 
 ## Decisões
 
@@ -103,12 +111,23 @@ Por que o projeto é do jeito que é. Decisões que não são óbvias pelo códi
   gradiente fica simples (`probabilidades − one_hot`); separado, o cálculo pode
   estourar com logits grandes.
 - **Inicialização de He na `Linear`:** adequada para redes com ReLU.
+- **Split:** 50 mil treino e 10 mil validação, estratificado e com seed fixa. Os
+  10 mil de teste oficiais não são usados até a avaliação final.
+- **Normalização global:** média e desvio escalares, calculados só no treino.
+  Por pixel não funciona no MNIST: pixels de borda quase sempre valem 0, e
+  dividir pelo desvio minúsculo deles gerou entradas de até ~100 e uma loss de
+  validação na casa de centenas.
+- **Early stopping e checkpoint pela acurácia de validação.**
 
 ## Limitações
 
 O que o projeto **não** garante. Seja honesto aqui.
 
-- O treino e as métricas ainda não existem; por enquanto só há as camadas.
+- Uma seed e um split só; a variação entre seeds ainda não foi medida.
+- Há overfitting leve: a loss de treino vai a ~0 e a de validação sobe um pouco
+  depois da época ~8. O checkpoint usa a acurácia, não a loss.
+- A validação serviu para escolher a época. O número real de generalização
+  virá do teste oficial.
 - Foco didático: não é otimizado para velocidade nem pensado para produção.
 
 ## Estrutura
@@ -117,7 +136,13 @@ O que o projeto **não** garante. Seja honesto aqui.
 .
 ├── src/
 │   ├── layers.py   # Linear, ReLU
-│   └── losses.py   # SoftmaxCrossEntropy
+│   ├── losses.py   # SoftmaxCrossEntropy
+│   ├── network.py  # MLP: forward e backprop da rede inteira
+│   ├── gradcheck.py# gradient check por diferenças finitas
+│   ├── data.py     # MNIST, split estratificado, normalização
+│   ├── optim.py    # SGD
+│   ├── train.py    # loop de treino, CSV, early stopping, checkpoint
+│   └── plots.py    # curvas a partir do CSV
 ├── tests/          # testes automatizados (pytest)
 ├── notebooks/      # exploração; o código "de verdade" mora em src/
 ├── configs/        # hiperparâmetros e caminhos, versionados

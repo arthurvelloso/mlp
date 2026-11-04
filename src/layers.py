@@ -5,6 +5,19 @@ from __future__ import annotations
 import numpy as np
 
 
+def _matmul(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Produto de matrizes ignorando flags de ponto flutuante espúrios.
+
+    Em algumas combinações de NumPy e BLAS (por exemplo, o Accelerate da Apple
+    em Python 3.14), ``@`` dispara avisos falsos de "divide by zero"/"overflow"
+    mesmo com entradas pequenas e resultado correto. Isolamos o produto num
+    ``errstate`` para não poluir a saída; erros numéricos reais ainda aparecem
+    como valores não finitos, que o treino detectaria pela loss.
+    """
+    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+        return a @ b
+
+
 class Linear:
     """Transformação afim ``y = x @ weights + bias``.
 
@@ -57,7 +70,7 @@ class Linear:
             raise ValueError(f"esperava {self.in_features} atributos, recebeu {inputs.shape[1]}")
 
         self._input = inputs.copy()
-        return self._input @ self.weights + self.bias
+        return _matmul(self._input, self.weights) + self.bias
 
     def backward(self, grad_output: np.ndarray) -> np.ndarray:
         """Calcula os gradientes dos parâmetros e da entrada.
@@ -81,9 +94,9 @@ class Linear:
             )
 
         # A loss já calcula a média do lote. Não se divide pelo batch novamente aqui.
-        self.grad_weights[...] = self._input.T @ grad_output
+        self.grad_weights[...] = _matmul(self._input.T, grad_output)
         self.grad_bias[...] = np.sum(grad_output, axis=0)
-        return grad_output @ self.weights.T
+        return _matmul(grad_output, self.weights.T)
 
 
 class ReLU:

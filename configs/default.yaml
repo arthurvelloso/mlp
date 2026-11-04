@@ -6,10 +6,11 @@
 seed: 0
 
 data:
-  val_fraction: 0.2
+  val_size: 10000 # exemplos de validação separados dos 60 mil de treino
 
-# Exemplo de bloco de treino para um projeto real:
-# train:
-#   lr: 0.01
-#   batch_size: 128
-#   epochs: 10
+train:
+  hidden_sizes: [256, 128] # MLP 784-256-128-10
+  learning_rate: 0.1
+  batch_size: 128
+  epochs: 30
+  patience: 5 # early stopping: épocas sem melhora na validação antes de parar

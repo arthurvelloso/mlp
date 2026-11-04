@@ -1,9 +1,9 @@
 # Configuração central do projeto: metadados, ruff e pytest num só lugar.
 
 [project]
-name = "template-ml"
+name = "mlp"
 version = "0.1.0"
-description = "Template de repositório para projetos de ML."
+description = "MLP do zero em NumPy, treinada no MNIST."
 requires-python = ">=3.11"
 
 [tool.ruff]
