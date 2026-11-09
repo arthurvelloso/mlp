@@ -1,0 +1,27 @@
+# Configuração do estudo (dia 5): learning rate ótimo vs. batch size.
+# Fixada junto com o pré-registro. Mudou aqui, muda o experimento inteiro.
+
+seed_base: 0 # as seeds dos runs são 0, 1, 2 (ver research.seeds)
+
+data:
+  val_size: 10000
+  train_subset: 10000 # subconjunto do treino, para a grade caber no orçamento
+
+model:
+  hidden_sizes: [256, 128] # MLP 784-256-128-10
+
+research:
+  epochs: 15 # orçamento fixo por run
+  target_accuracy: 0.97 # usado para "épocas até atingir o alvo"
+  seeds: [0, 1, 2]
+  batch_sizes: [32, 128, 512]
+  # 8 learning rates por otimizador, espaçados por fator 2.
+  optimizers:
+    sgd:
+      learning_rates: [0.0125, 0.025, 0.05, 0.1, 0.2, 0.4, 0.8, 1.6]
+    momentum:
+      momentum: 0.9
+      learning_rates: [0.0125, 0.025, 0.05, 0.1, 0.2, 0.4, 0.8, 1.6]
+    adam:
+      learning_rates:
+        [6.25e-5, 1.25e-4, 2.5e-4, 5.0e-4, 1.0e-3, 2.0e-3, 4.0e-3, 8.0e-3]

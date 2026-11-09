@@ -79,7 +79,10 @@ def train(config: dict[str, Any]) -> dict[str, float]:
     layer_sizes = [num_features, *hidden, num_classes]
 
     model = MLP(layer_sizes, seed=seed)
-    optimizer = SGD(model.parameters(), learning_rate=learning_rate)
+    param_grad_pairs = model.parameters()
+    params = [param for param, _ in param_grad_pairs]
+    grads = [grad for _, grad in param_grad_pairs]
+    optimizer = SGD(learning_rate=learning_rate)
     rng = np.random.default_rng(seed)
 
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -100,7 +103,7 @@ def train(config: dict[str, Any]) -> dict[str, float]:
                 stop = start + batch_size
                 model.forward(x_shuffled[start:stop], y_shuffled[start:stop])
                 model.backward()
-                optimizer.step()
+                optimizer.step(params, grads)
 
             train_loss = mean_loss(model, x_train, y_train, batch_size)
             train_acc = accuracy(model, x_train, y_train)

@@ -16,6 +16,12 @@ data/
 *.csv
 reports/
 
+# A pasta research/ é entregável: versiona CSV, figuras e resumo da pesquisa.
+!research/
+!research/*.csv
+!research/figures/
+!research/figures/*.png
+
 # Segredos: NUNCA versionar
 .env
 *.key

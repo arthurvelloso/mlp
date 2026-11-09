@@ -1,0 +1,5 @@
+# Dependências usadas só em testes, não em produção.
+# O PyTorch entra apenas como referência para validar os otimizadores
+# implementados do zero (tests/test_optim.py).
+
+torch==2.12.0
