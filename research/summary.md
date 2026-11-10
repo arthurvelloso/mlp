@@ -3,6 +3,14 @@
 - Total de runs: 216
 - Runs que divergiram: 41
 
+## Avaliação final no teste (configurações finalistas, 3 seeds)
+
+| Otimizador | LR | Batch | Acurácia de teste (média ± desvio) |
+| --- | --- | --- | --- |
+| sgd | 0.4 | 128 | 0.9592 ± 0.0021 |
+| momentum | 0.05 | 128 | 0.9649 ± 0.0012 |
+| adam | 0.001 | 128 | 0.9629 ± 0.0009 |
+
 ## LR ótimo por (otimizador, batch)
 
 | Otimizador | Batch | LR ótimo | Acurácia média |

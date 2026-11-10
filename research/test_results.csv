@@ -1,0 +1,4 @@
+optimizer,learning_rate,batch_size,test_acc_mean,test_acc_std,seeds
+sgd,0.4,128,0.959233,0.002101,3
+momentum,0.05,128,0.9649,0.001178,3
+adam,0.001,128,0.962933,0.000939,3

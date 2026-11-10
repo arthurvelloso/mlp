@@ -34,9 +34,10 @@ plots:  ## Gera as curvas de loss e acurácia a partir do CSV
 compare:  ## Compara os quatro otimizadores na mesma rede
 	python -m src.compare_optimizers
 
-research:  ## Roda a grade do estudo e gera gráficos + tabela
+research:  ## Roda a grade do estudo, gera gráficos + tabela e avalia no teste
 	python -m src.research_run
 	python -m src.research_plots
+	python -m src.research_test
 
 reproduce:  ## Reproduz o resultado principal (gradient check + treino + curvas)
 	$(MAKE) gradcheck

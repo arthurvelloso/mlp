@@ -92,19 +92,30 @@ def _flatten_and_scale(images: np.ndarray) -> np.ndarray:
 
 
 def prepare(
-    val_size: int = 10_000, seed: int = 0, path: Path = MNIST_PATH
+    val_size: int = 10_000,
+    seed: int = 0,
+    path: Path = MNIST_PATH,
+    *,
+    include_test: bool = False,
 ) -> dict[str, np.ndarray]:
     """Prepara treino e validação prontos para o modelo.
 
     As imagens são achatadas para 784, normalizadas com a média e o desvio do
     **treino**, e os rótulos ficam como inteiros.
 
+    Args:
+        val_size: quantos exemplos de treino vão para validação.
+        seed: semente do split estratificado.
+        path: caminho do .npz do MNIST.
+        include_test: se ``True``, inclui também os 10 mil de teste oficiais
+            normalizados com a mesma média/desvio do treino. Use só na
+            avaliação final, para não "espiar" o teste durante o desenvolvimento.
+
     Returns:
-        Dicionário com ``x_train``, ``y_train``, ``x_val``, ``y_val`` e também
-        ``mean`` e ``std`` (guardados para normalizar o teste do mesmo jeito,
-        no dia 6).
+        Dicionário com ``x_train``, ``y_train``, ``x_val``, ``y_val``, ``mean``
+        e ``std``. Com ``include_test=True``, também ``x_test`` e ``y_test``.
     """
-    x_train_raw, y_train_raw, _, _ = load_raw(path)
+    x_train_raw, y_train_raw, x_test_raw, y_test_raw = load_raw(path)
 
     train_idx, val_idx = stratified_split(y_train_raw, val_size=val_size, seed=seed)
 
@@ -122,12 +133,19 @@ def prepare(
     x_train = (x_train - mean) / std
     x_val = (x_val - mean) / std
 
-    return {
+    result = {
         "x_train": x_train,
         "y_train": y_train,
         "x_val": x_val,
         "y_val": y_val,
-        # Guardados para normalizar o teste do mesmo jeito no dia 6.
         "mean": np.array(mean),
         "std": np.array(std),
     }
+
+    if include_test:
+        # Teste normalizado com a MESMA média/desvio do treino: nada do teste
+        # influencia as estatísticas.
+        result["x_test"] = (_flatten_and_scale(x_test_raw) - mean) / std
+        result["y_test"] = y_test_raw.astype(np.int64)
+
+    return result
